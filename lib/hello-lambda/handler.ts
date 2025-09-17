@@ -1,6 +1,8 @@
-export async function main() {
+import { Context } from "aws-lambda";
+
+// Filename: handler.ts
+export async function main(event: any, context: Context) {
   return {
-    body: JSON.stringify({ message: "Hello from Lambda 🎉" }),
-    statusCode: 200,
+    message: `SUCCESS with message ${event.message} 🎉`,
   };
 }

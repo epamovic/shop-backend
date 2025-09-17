@@ -1,6 +1,7 @@
 // Filename: hello-lambda-stack.ts
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as cdk from "aws-cdk-lib";
+import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as path from "path";
 import { Construct } from "constructs";
 
@@ -14,6 +15,35 @@ export class HelloLambdaStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(5),
       handler: "handler.main",
       code: lambda.Code.fromAsset(path.join(__dirname, "./")),
+    });
+
+    const api = new apigateway.RestApi(this, "my-api", {
+      restApiName: "My API Gateway",
+      description: "This API serves the Lambda functions.",
+    });
+
+    const helloFromLambdaIntegration = new apigateway.LambdaIntegration(
+      lambdaFunction,
+      {
+        requestTemplates: {
+          "application/json": `{ "message": "$input.params('message')" }`, // Map the query param message
+        },
+        integrationResponses: [
+          {
+            statusCode: "200",
+          },
+        ],
+        proxy: false,
+      }
+    );
+
+    // Create a resource /hello and GET request under it
+    const helloResource = api.root.addResource("hello");
+    // On this resource attach a GET method which pass reuest to our Lambda function
+    helloResource.addMethod("GET", helloFromLambdaIntegration);
+    helloResource.addCorsPreflight({
+      allowOrigins: ["https://your-frontend-url.com"], // TODO - replace this url
+      allowMethods: ["GET"],
     });
   }
 }
