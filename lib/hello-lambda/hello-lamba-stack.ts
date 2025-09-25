@@ -28,11 +28,7 @@ export class HelloLambdaStack extends cdk.Stack {
         requestTemplates: {
           "application/json": `{ "message": "$input.params('message')" }`, // Map the query param message
         },
-        integrationResponses: [
-          {
-            statusCode: "200",
-          },
-        ],
+        integrationResponses: [{ statusCode: "200" }],
         proxy: false,
       }
     );
@@ -40,9 +36,11 @@ export class HelloLambdaStack extends cdk.Stack {
     // Create a resource /hello and GET request under it
     const helloResource = api.root.addResource("hello");
     // On this resource attach a GET method which pass reuest to our Lambda function
-    helloResource.addMethod("GET", helloFromLambdaIntegration);
+    helloResource.addMethod("GET", helloFromLambdaIntegration, {
+      methodResponses: [{ statusCode: "200" }],
+    });
     helloResource.addCorsPreflight({
-      allowOrigins: ["https://your-frontend-url.com"], // TODO - replace this url
+      allowOrigins: ["*"],
       allowMethods: ["GET"],
     });
   }

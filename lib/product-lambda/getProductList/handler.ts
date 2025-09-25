@@ -1,4 +1,3 @@
-import { Context } from "aws-lambda";
 import IAvailableProduct from "../../ProductService/IAvailableProduct";
 
 const mockProducts: Record<string, IAvailableProduct> = {
@@ -29,24 +28,8 @@ export async function getProductsList() {
   return Object.values(mockProducts);
 }
 
-export async function handler(_event: any, _context: Context) {
-  try {
-    const products = await getProductsList();
-    return {
-      statusCode: 200,
-      body: JSON.stringify(products),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-  } catch (error) {
-    console.error("Error getting products list:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Internal Server Error" }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-  }
+export async function handler(event: any) {
+  const products = await getProductsList();
+
+  return products;
 }
