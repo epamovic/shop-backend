@@ -24,10 +24,10 @@ const mockProducts: Record<string, IAvailableProduct> = {
   },
 };
 
-export function getProductsList() {
+export async function getProductsList() {
   return Object.values(mockProducts);
 }
 
-export function getProductById(id: string) {
+export async function getProductById(id: string) {
   return mockProducts[id] || null;
 }
