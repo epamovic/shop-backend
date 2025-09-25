@@ -19,8 +19,9 @@ export class ProductLambdaStack extends cdk.Stack {
 
     const productResource = api.root.addResource("product");
 
-    productResource.addMethod("GET", getProductListIntegration);
-    productResource.addCorsPreflight({
+    const productAvailableResource = productResource.addResource("available");
+    productAvailableResource.addMethod("GET", getProductListIntegration);
+    productAvailableResource.addCorsPreflight({
       allowOrigins: WHITELISTED_ORIGINS,
       allowMethods: ["GET"],
     });
