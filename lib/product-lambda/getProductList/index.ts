@@ -5,8 +5,8 @@ import * as path from "path";
 
 import { Construct } from "constructs";
 
-export default function createGetProductsListIntegration(scope: Construct) {
-  const getProductsListLambda = new lambda.Function(
+export default function createGetProductListIntegration(scope: Construct) {
+  const getProductListLambda = new lambda.Function(
     scope,
     "getProductsListLambda",
     {
@@ -18,8 +18,8 @@ export default function createGetProductsListIntegration(scope: Construct) {
     }
   );
 
-  const getProductsListIntegration = new apigateway.LambdaIntegration(
-    getProductsListLambda,
+  const getProductListIntegration = new apigateway.LambdaIntegration(
+    getProductListLambda,
     {
       requestTemplates: {
         "application/json": `{ "message": "$input.params('message')" }`, // Map the query param message
@@ -32,5 +32,5 @@ export default function createGetProductsListIntegration(scope: Construct) {
       proxy: false,
     }
   );
-  return getProductsListIntegration;
+  return getProductListIntegration;
 }

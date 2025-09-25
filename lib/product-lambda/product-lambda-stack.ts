@@ -1,31 +1,31 @@
 // Filename: hello-lambda-stack.ts
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
-import createGetProductsListIntegration from "./getProductsList";
-import createGetProductsByIdIntegration from "./getProductsById";
+import createGetProductListIntegration from "./getProductList";
+import createGetProductsByIdIntegration from "./getProductById";
 import createApi from "./stack/api";
 
 const WHITELISTED_ORIGINS = ["https://your-frontend-url.com"];
 
-export class ProductsLambdaStack extends cdk.Stack {
+export class ProductLambdaStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const getProductsListIntegration = createGetProductsListIntegration(this);
+    const getProductListIntegration = createGetProductListIntegration(this);
 
     const getProductByIdIntegration = createGetProductsByIdIntegration(this);
 
     const api = createApi(this);
 
-    const productsResource = api.root.addResource("products");
+    const productResource = api.root.addResource("product");
 
-    productsResource.addMethod("GET", getProductsListIntegration);
-    productsResource.addCorsPreflight({
+    productResource.addMethod("GET", getProductListIntegration);
+    productResource.addCorsPreflight({
       allowOrigins: WHITELISTED_ORIGINS,
       allowMethods: ["GET"],
     });
 
-    const productByIdResource = productsResource.addResource("{id}");
+    const productByIdResource = productResource.addResource("{id}");
 
     productByIdResource.addMethod("GET", getProductByIdIntegration);
     productByIdResource.addCorsPreflight({
