@@ -1,19 +1,17 @@
 import * as cdk from "aws-cdk-lib";
-import * as lambda from "aws-cdk-lib/aws-lambda";
-import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import { Construct } from "constructs";
-import path from "path";
 import createApi from "./stack/api";
 import createGetProductList from "./getProductList";
 import { WHITELISTED_ORIGINS } from "../constants";
+import createGetProductsById from "./getProductById";
 
 export class ProductLambdaStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const getProductList = createGetProductList(this);
-
     const api = createApi(this);
+
+    const getProductList = createGetProductList(this);
 
     const productResource = api.root.addResource("product");
 
@@ -24,6 +22,25 @@ export class ProductLambdaStack extends cdk.Stack {
     });
 
     productAvailableResource.addCorsPreflight({
+      allowOrigins: WHITELISTED_ORIGINS,
+      allowMethods: ["GET"],
+      allowHeaders: [
+        "Content-Type",
+        "X-Amz-Date",
+        "Authorization",
+        "X-Api-Key",
+      ],
+    });
+
+    const getProductById = createGetProductsById(this);
+
+    const productIdResource = productResource.addResource("{id}");
+
+    productIdResource.addMethod("GET", getProductById.integration, {
+      methodResponses: getProductById.methodResponses,
+    });
+
+    productIdResource.addCorsPreflight({
       allowOrigins: WHITELISTED_ORIGINS,
       allowMethods: ["GET"],
       allowHeaders: [

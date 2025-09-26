@@ -5,7 +5,7 @@ import * as path from "path";
 
 import { Construct } from "constructs";
 
-export default function createGetProductsByIdIntegration(scope: Construct) {
+export default function createGetProductsById(scope: Construct) {
   const getProductByIdLambda = new lambda.Function(
     scope,
     "getProductByIdLambda",
@@ -27,11 +27,30 @@ export default function createGetProductsByIdIntegration(scope: Construct) {
       integrationResponses: [
         {
           statusCode: "200",
+          responseParameters: {
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
+            "method.response.header.Access-Control-Allow-Headers":
+              "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'",
+            "method.response.header.Access-Control-Allow-Methods":
+              "'GET,OPTIONS'",
+          },
         },
       ],
       proxy: false,
     }
   );
 
-  return getProductByIdIntegration;
+  return {
+    integration: getProductByIdIntegration,
+    methodResponses: [
+      {
+        statusCode: "200",
+        responseParameters: {
+          "method.response.header.Access-Control-Allow-Origin": true,
+          "method.response.header.Access-Control-Allow-Headers": true,
+          "method.response.header.Access-Control-Allow-Methods": true,
+        },
+      },
+    ],
+  };
 }
