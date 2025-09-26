@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
-import { ProductLambdaStack } from "../lib/product-lambda/product-lambda-stack";
+import { ProductServiceStack } from "../lib/product-service/product-service-stack";
 
 const app = new cdk.App();
 
-new ProductLambdaStack(app, "ProductLambdaStack", {});
+new ProductServiceStack(app, "ProductLambdaStack", {});

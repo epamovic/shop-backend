@@ -1,4 +1,5 @@
-import IAvailableProduct from "../../ProductService/IAvailableProduct";
+import { Context } from "aws-lambda";
+import IAvailableProduct from "../types/IAvailableProduct";
 
 const mockProducts: Record<string, IAvailableProduct> = {
   "1": {
@@ -24,12 +25,10 @@ const mockProducts: Record<string, IAvailableProduct> = {
   },
 };
 
-export async function getProductsList() {
-  return Object.values(mockProducts);
+async function getProductById(id: string) {
+  return mockProducts[id] || null;
 }
 
-export async function handler(event: any) {
-  const products = await getProductsList();
-
-  return products;
+export async function handler(event: any, context: Context) {
+  return getProductById(event.id);
 }

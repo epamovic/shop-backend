@@ -5,7 +5,7 @@ import * as path from "path";
 
 import { Construct } from "constructs";
 
-export default function createGetProductsById(scope: Construct) {
+export default function createGetProductById(scope: Construct) {
   const getProductByIdLambda = new lambda.Function(
     scope,
     "getProductByIdLambda",
