@@ -7,6 +7,7 @@ import { WHITELISTED_ORIGINS } from "../constants";
 import createGetProductById from "./getProductById";
 import createPrefillProducts from "./prefilTable";
 import { createProductsTable, createStockTable } from "./model";
+import createCreateProduct from "./createProduct";
 
 export class ProductServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -16,57 +17,23 @@ export class ProductServiceStack extends cdk.Stack {
 
     const stockTable = createStockTable(this);
 
-    const prefillTable = createPrefillProducts(this);
-
-    productsTable.grantWriteData(prefillTable.lambda);
-    stockTable.grantWriteData(prefillTable.lambda);
+    createPrefillProducts(this, [productsTable, stockTable]);
 
     const api = createApi(this);
 
-    const getProductList = createGetProductList(this);
-
-    productsTable.grantReadData(getProductList.lambda);
-    stockTable.grantReadData(getProductList.lambda);
-
     const productResource = api.root.addResource("product");
+
+    createCreateProduct(this, productResource, [productsTable, stockTable]);
 
     const productAvailableResource = productResource.addResource("available");
 
-    productAvailableResource.addMethod("GET", getProductList.integration, {
-      methodResponses: getProductList.methodResponses,
-    });
-
-    productAvailableResource.addCorsPreflight({
-      allowOrigins: WHITELISTED_ORIGINS,
-      allowMethods: ["GET"],
-      allowHeaders: [
-        "Content-Type",
-        "X-Amz-Date",
-        "Authorization",
-        "X-Api-Key",
-      ],
-    });
-
-    const getProductById = createGetProductById(this);
-
-    productsTable.grantReadData(getProductById.lambda);
-    stockTable.grantReadData(getProductById.lambda);
+    createGetProductList(this, productAvailableResource, [
+      productsTable,
+      stockTable,
+    ]);
 
     const productIdResource = productResource.addResource("{id}");
 
-    productIdResource.addMethod("GET", getProductById.integration, {
-      methodResponses: getProductById.methodResponses,
-    });
-
-    productIdResource.addCorsPreflight({
-      allowOrigins: WHITELISTED_ORIGINS,
-      allowMethods: ["GET"],
-      allowHeaders: [
-        "Content-Type",
-        "X-Amz-Date",
-        "Authorization",
-        "X-Api-Key",
-      ],
-    });
+    createGetProductById(this, productIdResource, [productsTable, stockTable]);
   }
 }
