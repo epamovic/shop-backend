@@ -1,9 +1,9 @@
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as cdk from "aws-cdk-lib";
 import * as path from "path";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 
 import { Construct } from "constructs";
-import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 
 export default function createPrefillProducts(scope: Construct) {
   const prefillProductsLambda = new NodejsFunction(

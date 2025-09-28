@@ -1,34 +1,40 @@
-import { Context } from "aws-lambda";
+import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { Handler } from "aws-lambda";
+import { PRODUCT_TABLE_NAME, STOCK_TABLE_NAME } from "../model";
 import IAvailableProduct from "../types/IAvailableProduct";
 
-const mockProducts: Record<string, IAvailableProduct> = {
-  "1": {
-    id: "1",
-    title: "Product 1",
-    description: "Description for Product 1",
-    price: 100,
-    count: 10,
-  },
-  "2": {
-    id: "2",
-    title: "Product 2",
-    description: "Description for Product 2",
-    price: 200,
-    count: 20,
-  },
-  "3": {
-    id: "3",
-    title: "Product 3",
-    description: "Description for Product 3",
-    price: 300,
-    count: 30,
-  },
+const dynamoDB = new DynamoDBClient({ region: process.env.AWS_REGION });
+
+export const getProductById: Handler = async (
+  event,
+  context
+): Promise<IAvailableProduct> => {
+  const id = event.id;
+
+  const getProductCommand = new GetItemCommand({
+    TableName: PRODUCT_TABLE_NAME,
+    Key: { id: { S: id } },
+  });
+  const getStockCommand = new GetItemCommand({
+    TableName: STOCK_TABLE_NAME as string,
+    Key: { product_id: { S: id } },
+  });
+
+  const [product, stock] = await Promise.all([
+    dynamoDB.send(getProductCommand),
+    dynamoDB.send(getStockCommand)
+  ]);
+  console.log("GetItem succeeded:", JSON.stringify(product, null, 2));
+  console.log("GetItem succeeded:", JSON.stringify(stock, null, 2));
+
+  if (product.Item && stock.Item) {
+    return {
+      id: product.Item.id.S as string,
+      title: product.Item.title.S as string,
+      description: product.Item.description.S as string,
+      price: Number(product.Item.price.N),
+      count: Number(stock.Item.count.N),
+    };
+  }
+  throw new Error("Product not found");
 };
-
-async function getProductById(id: string) {
-  return mockProducts[id] || null;
-}
-
-export async function handler(event: any, context: Context) {
-  return getProductById(event.id);
-}

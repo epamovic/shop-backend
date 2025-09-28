@@ -25,6 +25,9 @@ export class ProductServiceStack extends cdk.Stack {
 
     const getProductList = createGetProductList(this);
 
+    productsTable.grantReadData(getProductList.lambda);
+    stockTable.grantReadData(getProductList.lambda);
+
     const productResource = api.root.addResource("product");
 
     const productAvailableResource = productResource.addResource("available");
@@ -45,6 +48,9 @@ export class ProductServiceStack extends cdk.Stack {
     });
 
     const getProductById = createGetProductById(this);
+
+    productsTable.grantReadData(getProductById.lambda);
+    stockTable.grantReadData(getProductById.lambda);
 
     const productIdResource = productResource.addResource("{id}");
 
