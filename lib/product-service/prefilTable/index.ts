@@ -4,8 +4,12 @@ import * as path from "path";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 
 import { Construct } from "constructs";
+import { Table } from "aws-cdk-lib/aws-dynamodb";
 
-export default function createPrefillProducts(scope: Construct) {
+export default function createPrefillProducts(
+  scope: Construct,
+  tables: Table[] = []
+) {
   const prefillProductsLambda = new NodejsFunction(
     scope,
     "prefillProductsLambda",
@@ -17,6 +21,10 @@ export default function createPrefillProducts(scope: Construct) {
       entry: path.join(__dirname, "handler.ts"),
     }
   );
+
+  tables.forEach((table) => {
+    table.grantWriteData(prefillProductsLambda);
+  });
 
   return {
     lambda: prefillProductsLambda,

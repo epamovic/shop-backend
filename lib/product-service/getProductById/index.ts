@@ -5,8 +5,14 @@ import * as path from "path";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 
 import { Construct } from "constructs";
+import { Table } from "aws-cdk-lib/aws-dynamodb";
+import { WHITELISTED_ORIGINS } from "../../constants";
 
-export default function createGetProductById(scope: Construct) {
+export default function createGetProductById(
+  scope: Construct,
+  resource: apigateway.Resource,
+  tables: Table[] = []
+) {
   const getProductByIdLambda = new NodejsFunction(
     scope,
     "getProductByIdLambda",
@@ -41,18 +47,34 @@ export default function createGetProductById(scope: Construct) {
     }
   );
 
+  const methodResponses = [
+    {
+      statusCode: "200",
+      responseParameters: {
+        "method.response.header.Access-Control-Allow-Origin": true,
+        "method.response.header.Access-Control-Allow-Headers": true,
+        "method.response.header.Access-Control-Allow-Methods": true,
+      },
+    },
+  ];
+
+  tables.forEach((table) => {
+    table.grantReadData(getProductByIdLambda);
+  });
+
+  resource.addMethod("GET", getProductByIdIntegration, {
+    methodResponses,
+  });
+
+  resource.addCorsPreflight({
+    allowOrigins: WHITELISTED_ORIGINS,
+    allowMethods: ["GET"],
+    allowHeaders: ["Content-Type", "X-Amz-Date", "Authorization", "X-Api-Key"],
+  });
+
   return {
     lambda: getProductByIdLambda,
     integration: getProductByIdIntegration,
-    methodResponses: [
-      {
-        statusCode: "200",
-        responseParameters: {
-          "method.response.header.Access-Control-Allow-Origin": true,
-          "method.response.header.Access-Control-Allow-Headers": true,
-          "method.response.header.Access-Control-Allow-Methods": true,
-        },
-      },
-    ],
+    methodResponses,
   };
 }
