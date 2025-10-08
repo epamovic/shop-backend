@@ -6,6 +6,7 @@ import { Construct } from "constructs";
 import createApi from "../product-service/stack/api";
 import createImportProductsFile from "./importProductsFile";
 import createImportFileParser from "./importFileParser";
+import { WHITELISTED_ORIGINS } from "../constants";
 
 export class ImportServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -15,6 +16,15 @@ export class ImportServiceStack extends cdk.Stack {
       versioned: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY, // Note: only use DESTROY for development
       autoDeleteObjects: true, // Note: only use autoDeleteObjects for development
+      cors: [
+        {
+          allowedHeaders: ["*"],
+          allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.PUT],
+          allowedOrigins: WHITELISTED_ORIGINS,
+          exposedHeaders: ["ETag", "x-amz-meta-custom-header"],
+          maxAge: 3000,
+        },
+      ],
     });
 
     new s3deploy.BucketDeployment(this, "CreateFolderStructure", {
