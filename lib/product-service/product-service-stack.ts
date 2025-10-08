@@ -1,9 +1,7 @@
 import * as cdk from "aws-cdk-lib";
-import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 import createApi from "./stack/api";
 import createGetProductList from "./getProductList";
-import { WHITELISTED_ORIGINS } from "../constants";
 import createGetProductById from "./getProductById";
 import createPrefillProducts from "./prefilTable";
 import { createProductsTable, createStockTable } from "./model";
@@ -19,7 +17,7 @@ export class ProductServiceStack extends cdk.Stack {
 
     createPrefillProducts(this, [productsTable, stockTable]);
 
-    const api = createApi(this);
+    const api = createApi(this, "Shop Product Api");
 
     const productResource = api.root.addResource("product");
 

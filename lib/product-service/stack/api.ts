@@ -3,11 +3,12 @@ import { Construct } from "constructs";
 
 export default function createApi(
   scope: Construct,
+  name: string,
   options?: apigateway.RestApiProps
 ) {
   const api = new apigateway.RestApi(scope, "my-api", {
-    restApiName: "Shop Product Api",
-    description: "This API serves the Lambda functions for products.",
+    restApiName: name,
+    description: `This API serves the Lambda functions for ${name}.`,
     ...options,
   });
 
