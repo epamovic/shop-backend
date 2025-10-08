@@ -1,7 +1,11 @@
 import * as cdk from "aws-cdk-lib";
 import * as s3 from "aws-cdk-lib/aws-s3";
+import * as s3n from "aws-cdk-lib/aws-s3-notifications";
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 import { Construct } from "constructs";
+import createApi from "../product-service/stack/api";
+import createImportProductsFile from "./importProductsFile";
+import createImportFileParser from "./importFileParser";
 
 export class ImportServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -17,5 +21,33 @@ export class ImportServiceStack extends cdk.Stack {
       sources: [s3deploy.Source.data("uploaded/.keep", " ")],
       destinationBucket: importBucket,
     });
+
+    const api = createApi(this, "Shop Import Api");
+
+    const importResource = api.root.addResource("import");
+
+    const importProductsFile = createImportProductsFile(this, importResource);
+
+    importBucket.grantReadWrite(importProductsFile.lambda);
+
+    importProductsFile.lambda.addEnvironment(
+      "BUCKET_NAME",
+      importBucket.bucketName
+    );
+
+    const importFileParser = createImportFileParser(this);
+
+    importBucket.grantReadWrite(importFileParser.lambda);
+
+    importFileParser.lambda.addEnvironment(
+      "BUCKET_NAME",
+      importBucket.bucketName
+    );
+
+    importBucket.addEventNotification(
+      s3.EventType.OBJECT_CREATED,
+      new s3n.LambdaDestination(importFileParser.lambda),
+      { prefix: "uploaded/" } // This filters for objects in the "uploaded/" folder
+    );
   }
 }
