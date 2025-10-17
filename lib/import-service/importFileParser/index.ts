@@ -12,7 +12,7 @@ export default function createImportFileParser(scope: Construct) {
     {
       runtime: lambda.Runtime.NODEJS_20_X,
       memorySize: 1024,
-      timeout: cdk.Duration.seconds(5),
+      timeout: cdk.Duration.seconds(10), // Increased timeout to allow time for SQS operations
       handler: "importFileParser",
       entry: path.join(__dirname, "handler.ts"),
     }
