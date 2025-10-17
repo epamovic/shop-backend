@@ -62,6 +62,12 @@ export default function createGetProductById(
     table.grantReadData(getProductByIdLambda);
   });
 
+  getProductByIdLambda.addEnvironment(
+    "PRODUCT_TABLE_NAME",
+    tables[0].tableName
+  );
+  getProductByIdLambda.addEnvironment("STOCK_TABLE_NAME", tables[1].tableName);
+
   resource.addMethod("GET", getProductByIdIntegration, {
     methodResponses,
   });
