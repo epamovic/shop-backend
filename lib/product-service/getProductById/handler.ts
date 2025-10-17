@@ -1,6 +1,7 @@
 import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { Handler } from "aws-lambda";
 import IAvailableProduct from "../types/IAvailableProduct";
+import { PRODUCT_TABLE_NAME, STOCK_TABLE_NAME } from "../model";
 
 const dynamoDB = new DynamoDBClient({ region: process.env.AWS_REGION });
 
@@ -16,19 +17,12 @@ export const getProductById: Handler = async (
     throw new Error("Missing 'id' path parameter");
   }
 
-  const productTableName = process.env.PRODUCT_TABLE_NAME;
-  const stockTableName = process.env.STOCK_TABLE_NAME;
-
-  if (!productTableName || !stockTableName) {
-    throw new Error("Required environment variables are not set");
-  }
-
   const getProductCommand = new GetItemCommand({
-    TableName: productTableName,
+    TableName: PRODUCT_TABLE_NAME,
     Key: { id: id },
   });
   const getStockCommand = new GetItemCommand({
-    TableName: stockTableName,
+    TableName: STOCK_TABLE_NAME,
     Key: { product_id: id },
   });
 
