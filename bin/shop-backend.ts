@@ -7,6 +7,7 @@ import { HelloS3Stack } from "../lib/hello-s3/hello-s3-stack";
 import { ImportServiceStack } from "../lib/import-service/import-service-stack";
 import { ProductSqsStack } from "../lib/product-sqs/product-sqs-stack";
 import { ProductSnsStack } from "../lib/product-sns/product-sns-stack";
+import { AuthorizerStack } from "../lib/authorizer-stack/authorizer-stack";
 
 const app = new cdk.App();
 
@@ -15,6 +16,7 @@ new TodoStack(app, "TodoStack", {});
 new HelloS3Stack(app, "HelloS3Stack", {});
 new ProductSqsStack(app, "ProductSqsStack", {});
 new ProductSnsStack(app, "ProductSnsStack", {});
+new AuthorizerStack(app, "AuthorizerStack", {});
 
 new ProductServiceStack(app, "ProductLambdaStack", {});
 new ImportServiceStack(app, "ImportServiceStack", {});
