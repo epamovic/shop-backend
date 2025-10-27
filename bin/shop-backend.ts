@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
 import { ProductServiceStack } from "../lib/product-service/product-service-stack";
-import { TodoStack } from "../lib/todo/TodoStack";
-import { HelloLambdaStack } from "../lib/hello-lambda/hello-lamba-stack";
-import { HelloS3Stack } from "../lib/hello-s3/hello-s3-stack";
+import { TodoStack } from "../example/todo/TodoStack";
+import { HelloLambdaStack } from "../example/hello-lambda/hello-lamba-stack";
+import { HelloS3Stack } from "../example/hello-s3/hello-s3-stack";
 import { ImportServiceStack } from "../lib/import-service/import-service-stack";
-import { ProductSqsStack } from "../lib/product-sqs/product-sqs-stack";
-import { ProductSnsStack } from "../lib/product-sns/product-sns-stack";
-import { AuthorizerStack } from "../lib/authorizer-stack/authorizer-stack";
+import { ProductSqsStack } from "../example/product-sqs/product-sqs-stack";
+import { ProductSnsStack } from "../example/product-sns/product-sns-stack";
+import { AuthorizerStack } from "../example/authorizer-stack/authorizer-stack";
 
 const app = new cdk.App();
 
