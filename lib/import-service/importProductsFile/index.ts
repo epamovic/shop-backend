@@ -9,7 +9,8 @@ import { WHITELISTED_ORIGINS } from "../../constants";
 
 export default function createImportProductsFile(
   scope: Construct,
-  resource: apigateway.Resource
+  resource: apigateway.Resource,
+  authorizer?: apigateway.IAuthorizer
 ) {
   const importProductsFileLambda = new NodejsFunction(
     scope,
@@ -58,6 +59,7 @@ export default function createImportProductsFile(
 
   resource.addMethod("GET", importProductsFileIntegration, {
     methodResponses,
+    authorizer,
   });
 
   resource.addCorsPreflight({
