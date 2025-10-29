@@ -3,15 +3,35 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import * as s3n from "aws-cdk-lib/aws-s3-notifications";
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 import * as sqs from "aws-cdk-lib/aws-sqs";
+import * as path from "node:path";
 import { Construct } from "constructs";
 import createApi from "../product-service/stack/api";
 import createImportProductsFile from "./importProductsFile";
 import createImportFileParser from "./importFileParser";
 import { WHITELISTED_ORIGINS } from "../constants";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import * as lambda from "aws-cdk-lib/aws-lambda";
 
 export class ImportServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    // Add reference to the basicAuthorizer lambda
+    const basicAuthorizer = new NodejsFunction(this, "BasicAuthorizerLambda", {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      memorySize: 1024,
+      timeout: cdk.Duration.seconds(5),
+      handler: "basicAuthorizer",
+      entry: path.join(
+        __dirname,
+        "../authorization-service/basicAuthorizerHandler.ts"
+      ),
+    });
+
+    basicAuthorizer.addEnvironment(
+      "TEST_USER_CREDENTIALS",
+      process.env.TEST_USER_CREDENTIALS || ""
+    );
 
     const importBucket = new s3.Bucket(this, "ImportBucket", {
       versioned: true,
@@ -37,7 +57,21 @@ export class ImportServiceStack extends cdk.Stack {
 
     const importResource = api.root.addResource("import");
 
-    const importProductsFile = createImportProductsFile(this, importResource);
+    // Create Lambda authorizer for /import path
+    const lambdaAuthorizer = new cdk.aws_apigateway.TokenAuthorizer(
+      this,
+      "ImportLambdaAuthorizer",
+      {
+        handler: basicAuthorizer,
+        identitySource: "method.request.header.Authorization",
+      }
+    );
+
+    const importProductsFile = createImportProductsFile(
+      this,
+      importResource,
+      lambdaAuthorizer
+    );
 
     importBucket.grantReadWrite(importProductsFile.lambda);
 
