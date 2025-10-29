@@ -18,7 +18,7 @@ export class AuthorizerStack extends cdk.Stack {
       code: lambda.Code.fromAsset(path.join(__dirname, "./")),
     });
 
-    const userPool = new cognito.UserPool(this, "my-user-pool", {
+    const userPool = new cognito.UserPool(this, "something-user-pool", {
       signInAliases: {
         email: true,
       },
@@ -45,8 +45,8 @@ export class AuthorizerStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    const appClient = userPool.addClient("my-app-client", {
-      userPoolClientName: "my-app-client",
+    const appClient = userPool.addClient("something-client", {
+      userPoolClientName: "something-client",
       authFlows: {
         userPassword: true,
       },
@@ -58,8 +58,8 @@ export class AuthorizerStack extends cdk.Stack {
       },
     });
 
-    const api = new apigateway.RestApi(this, "my-api", {
-      restApiName: "My API Gateway",
+    const api = new apigateway.RestApi(this, "something-api", {
+      restApiName: "Something API Gateway",
       description: "This API serves the Lambda functions.",
     });
 

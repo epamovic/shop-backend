@@ -9,27 +9,28 @@ import createApi from "../product-service/stack/api";
 import createImportProductsFile from "./importProductsFile";
 import createImportFileParser from "./importFileParser";
 import { WHITELISTED_ORIGINS } from "../constants";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import * as lambda from "aws-cdk-lib/aws-lambda";
 
 export class ImportServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // Add reference to the basicAuthorizer lambda
-    const basicAuthorizer = new cdk.aws_lambda.Function(
-      this,
-      "BasicAuthorizerLambda",
-      {
-        runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
-        handler: "basicAuthorizerHandler.basicAuthorizer",
-        code: cdk.aws_lambda.Code.fromAsset(
-          path.join(__dirname, "../authorization-service")
-        ),
-        environment: {
-          TEST_USER_CREDENTIALS: "{your_github_account_login}=TEST_PASSWORD", // Replace with your actual GitHub login
-        },
-        memorySize: 128,
-        timeout: cdk.Duration.seconds(5),
-      }
+    const basicAuthorizer = new NodejsFunction(this, "BasicAuthorizerLambda", {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      memorySize: 1024,
+      timeout: cdk.Duration.seconds(5),
+      handler: "basicAuthorizer",
+      entry: path.join(
+        __dirname,
+        "../authorization-service/basicAuthorizerHandler.ts"
+      ),
+    });
+
+    basicAuthorizer.addEnvironment(
+      "TEST_USER_CREDENTIALS",
+      process.env.TEST_USER_CREDENTIALS || ""
     );
 
     const importBucket = new s3.Bucket(this, "ImportBucket", {
